@@ -12,13 +12,17 @@ namespace AspNet.Identity.DocumentDb
 {
     public class UserStore : UserStore<IdentityUser<string>>
     {
-        public UserStore(DocumentDbClient context, IdentityErrorDescriber describer = null) : base(context, describer) { }
+        public UserStore(DocumentDbClient context, IdentityErrorDescriber describer = null) : base(context, describer)
+        {
+        }
     }
 
     public class UserStore<TUser> : UserStore<TUser, IdentityRole, DocumentDbClient>
         where TUser : IdentityUser<string>, new()
     {
-        public UserStore(DocumentDbClient context, IdentityErrorDescriber describer = null) : base(context, describer) { }
+        public UserStore(DocumentDbClient context, IdentityErrorDescriber describer = null) : base(context, describer)
+        {
+        }
     }
 
     public class UserStore<TUser, TRole, TDocumentClient> : UserStore<TUser, TRole, TDocumentClient, string>
@@ -26,7 +30,9 @@ namespace AspNet.Identity.DocumentDb
         where TRole : IdentityRole<string>, new()
         where TDocumentClient : DocumentDbClient
     {
-        public UserStore(TDocumentClient context, IdentityErrorDescriber describer = null) : base(context, describer) { }
+        public UserStore(TDocumentClient context, IdentityErrorDescriber describer = null) : base(context, describer)
+        {
+        }
     }
 
     public class UserStore<TUser, TRole, TDocumentClient, TKey> :
@@ -54,7 +60,7 @@ namespace AspNet.Identity.DocumentDb
             DocumentDb = context;
             ErrorDescriber = describer ?? new IdentityErrorDescriber();
         }
-        
+
         public TDocumentClient DocumentDb { get; private set; }
 
         /// <summary>
@@ -98,13 +104,7 @@ namespace AspNet.Identity.DocumentDb
             return id.ToString();
         }
 
-        public IQueryable<TUser> Users
-        {
-            get
-            {
-                throw new NotImplementedException();
-            }
-        }
+        public IQueryable<TUser> Users { get { return DocumentDb.UserQueryable<TUser, TKey>(); } }
 
         public Task AddLoginAsync(TUser user, UserLoginInfo login, CancellationToken cancellationToken)
         {
@@ -130,7 +130,7 @@ namespace AspNet.Identity.DocumentDb
             {
                 throw new ArgumentNullException(nameof(user));
             }
-            await DocumentDb.Add<TUser, TKey>(user);
+            await DocumentDb.UserAdd<TUser, TKey>(user);
             return IdentityResult.Success;
         }
 
@@ -142,7 +142,7 @@ namespace AspNet.Identity.DocumentDb
             {
                 throw new ArgumentNullException(nameof(user));
             }
-            await DocumentDb.Delete<TUser, TKey>(user);
+            await DocumentDb.UserDelete<TUser, TKey>(user);
             return IdentityResult.Success;
         }
 
@@ -153,7 +153,7 @@ namespace AspNet.Identity.DocumentDb
             if (string.IsNullOrWhiteSpace(userId))
                 throw new ArgumentNullException(nameof(userId));
             TKey id = ConvertIdFromString(userId);
-            var users = await DocumentDb.Search<TUser, TKey>(x => x.Id.Equals(id));
+            var users = await DocumentDb.UserSearch<TUser, TKey>(x => x.Id.Equals(id));
             return users.FirstOrDefault();
         }
 
@@ -165,7 +165,7 @@ namespace AspNet.Identity.DocumentDb
                 throw new ArgumentNullException(nameof(loginProvider));
             if (string.IsNullOrWhiteSpace(providerKey))
                 throw new ArgumentNullException(nameof(providerKey));
-            var users = await DocumentDb.Search<TUser, TKey>(x => x.Logins.Any(login => login.LoginProvider == loginProvider && login.ProviderKey == providerKey));
+            var users = await DocumentDb.UserSearch<TUser, TKey>(x => x.Logins.Any(login => login.LoginProvider == loginProvider && login.ProviderKey == providerKey));
             return users.FirstOrDefault();
         }
 
@@ -175,7 +175,7 @@ namespace AspNet.Identity.DocumentDb
             ThrowIfDisposed();
             if (string.IsNullOrWhiteSpace(normalizedUserName))
                 throw new ArgumentNullException(nameof(normalizedUserName));
-            var users = await DocumentDb.Search<TUser, TKey>(x => x.NormalizedUserName == normalizedUserName);
+            var users = await DocumentDb.UserSearch<TUser, TKey>(x => x.NormalizedUserName == normalizedUserName);
             return users.FirstOrDefault();
         }
 
@@ -277,7 +277,7 @@ namespace AspNet.Identity.DocumentDb
             {
                 throw new ArgumentNullException(nameof(user));
             }
-            await DocumentDb.Update<TUser, TKey>(user);
+            await DocumentDb.UserUpdate<TUser, TKey>(user);
             return IdentityResult.Success;
         }
 
@@ -341,7 +341,7 @@ namespace AspNet.Identity.DocumentDb
             ThrowIfDisposed();
             if (roleName == null)
                 throw new ArgumentNullException(nameof(roleName));
-            var users = await DocumentDb.Search<TUser, TKey>(x => x.Roles.Any(role => role == roleName));
+            var users = await DocumentDb.UserSearch<TUser, TKey>(x => x.Roles.Any(role => role == roleName));
             return (IList<TUser>)users;
         }
 
@@ -412,7 +412,7 @@ namespace AspNet.Identity.DocumentDb
             {
                 throw new ArgumentNullException(nameof(claims));
             }
-            foreach(var claim in claims)
+            foreach (var claim in claims)
             {
                 var matchedClaims = user.Claims.Where(uc => uc.Value == claim.Value && uc.Type == claim.Type);
                 foreach (var c in matchedClaims)
@@ -429,7 +429,7 @@ namespace AspNet.Identity.DocumentDb
             ThrowIfDisposed();
             if (claim == null)
                 throw new ArgumentNullException(nameof(claim));
-            var users = await DocumentDb.Search<TUser, TKey>(x => x.Claims.Any(c => c.Type == claim.Type));
+            var users = await DocumentDb.UserSearch<TUser, TKey>(x => x.Claims.Any(c => c.Type == claim.Type));
             return (IList<TUser>)users;
         }
 
@@ -541,7 +541,7 @@ namespace AspNet.Identity.DocumentDb
             ThrowIfDisposed();
             if (string.IsNullOrWhiteSpace(normalizedEmail))
                 throw new ArgumentNullException(nameof(normalizedEmail));
-            var users = await DocumentDb.Search<TUser, TKey>(x => x.NormalizedEmail == normalizedEmail);
+            var users = await DocumentDb.UserSearch<TUser, TKey>(x => x.NormalizedEmail == normalizedEmail);
             return users.FirstOrDefault();
         }
 
