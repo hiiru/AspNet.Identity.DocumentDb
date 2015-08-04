@@ -1,0 +1,18 @@
+﻿{
+  "version": "1.0.0-*",
+  "description": "AspNet.Identity.DocumentDb Class Library",
+  "authors": [ "master" ],
+  "tags": [ "" ],
+  "projectUrl": "",
+  "licenseUrl": "",
+
+  "dependencies": {
+    "Microsoft.AspNet.Identity": "3.0.0-beta6",
+    "Microsoft.Framework.DependencyInjection": "1.0.0-beta6",
+    "Microsoft.Azure.DocumentDB": "1.2.0"
+  },
+
+  "frameworks": {
+    "dnx451": { }
+  }
+}
