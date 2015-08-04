@@ -467,7 +467,7 @@ namespace AspNet.Identity.DocumentDb
             return Task.FromResult(user.PasswordHash != null);
         }
 
-        public async Task SetSecurityStampAsync(TUser user, string stamp, CancellationToken cancellationToken)
+        public Task SetSecurityStampAsync(TUser user, string stamp, CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
             ThrowIfDisposed();
@@ -475,8 +475,7 @@ namespace AspNet.Identity.DocumentDb
             {
                 throw new ArgumentNullException("user");
             }
-            user.SecurityStamp = stamp;
-            await UpdateAsync(user, cancellationToken);
+            return Task.FromResult(false);
         }
 
         public Task<string> GetSecurityStampAsync(TUser user, CancellationToken cancellationToken)

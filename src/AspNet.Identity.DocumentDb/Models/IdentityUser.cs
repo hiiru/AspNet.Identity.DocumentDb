@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNet.Identity;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Security.Claims;
@@ -38,9 +39,10 @@ namespace AspNet.Identity.DocumentDb.Models
         public virtual string PasswordHash { get; set; }
 
         /// <summary>
-        /// A random value that should change whenever a users credentials change (password changed, login removed)
+        /// SecurityStamp, use the DocumentDb timestamp to be sure it's updated when any data is changed
         /// </summary>
-        public virtual string SecurityStamp { get; set; }
+        [JsonProperty(PropertyName = "_ts")]
+        public string SecurityStamp { get; }
 
         /// <summary>
         ///     PhoneNumber for the user
@@ -95,5 +97,17 @@ namespace AspNet.Identity.DocumentDb.Models
         {
             return UserName;
         }
+
+        /// <summary>
+        /// DocumentDb unique id
+        /// </summary>
+        [JsonProperty(PropertyName = "id")]
+        public string DocId { get; set; }
+
+        /// <summary>
+        /// cached DocumentDb SelfLink for faster access
+        /// </summary>
+        [JsonProperty(PropertyName = "_self")]
+        public string DocSelfLink { get; set; }
     }
 }

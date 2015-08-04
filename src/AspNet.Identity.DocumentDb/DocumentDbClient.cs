@@ -14,8 +14,8 @@ namespace AspNet.Identity.DocumentDb
     public class DocumentDbClient
     {
         private readonly DocumentClient _client;
-        private Database _db;
-        private DocumentCollection _collection;
+        private readonly Database _db;
+        private readonly DocumentCollection _collection;
 
         public DocumentDbClient(IConfiguration config)
         {
