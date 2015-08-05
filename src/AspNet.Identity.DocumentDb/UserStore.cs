@@ -27,7 +27,7 @@ namespace AspNet.Identity.DocumentDb
 
     public class UserStore<TUser, TRole, TDocumentClient> : UserStore<TUser, TRole, TDocumentClient, string>
         where TUser : IdentityUser<string>, new()
-        where TRole : IdentityRole<string>, new()
+        where TRole : IdentityRole, new()
         where TDocumentClient : DocumentDbClient
     {
         public UserStore(TDocumentClient context, IdentityErrorDescriber describer = null) : base(context, describer)
@@ -47,7 +47,7 @@ namespace AspNet.Identity.DocumentDb
         IQueryableUserStore<TUser>,
         IUserTwoFactorStore<TUser>
         where TUser : IdentityUser<TKey>
-        where TRole : IdentityRole<string>
+        where TRole : IdentityRole
         where TDocumentClient : DocumentDbClient
         where TKey : IEquatable<TKey>
     {

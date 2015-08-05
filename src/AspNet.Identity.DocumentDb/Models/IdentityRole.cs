@@ -1,21 +1,17 @@
 ﻿using Newtonsoft.Json;
-using System;
 using System.Collections.Generic;
 using System.Security.Claims;
 
 namespace AspNet.Identity.DocumentDb.Models
-{/// <summary>
- ///     Represents a Role entity
- /// </summary>
-    public class IdentityRole : IdentityRole<string> { }
-
+{
     /// <summary>
     ///     Represents a Role entity
     /// </summary>
-    /// <typeparam name="TKey"></typeparam>
-    public class IdentityRole<TKey> where TKey : IEquatable<TKey>
+    public class IdentityRole
     {
-        public IdentityRole() { }
+        public IdentityRole()
+        {
+        }
 
         /// <summary>
         ///     Constructor
@@ -25,23 +21,19 @@ namespace AspNet.Identity.DocumentDb.Models
         {
             Name = roleName;
         }
-        
+
         /// <summary>
         ///     Role Claims
         /// </summary>
         public virtual ICollection<Claim> Claims { get; } = new List<Claim>();
 
         /// <summary>
-        ///     Role id
-        /// </summary>
-        public virtual TKey Id { get; set; }
-
-        /// <summary>
         ///     Role name
         /// </summary>
         public virtual string Name { get; set; }
+
         public virtual string NormalizedName { get; set; }
-        
+
         /// <summary>
         /// Returns a friendly name
         /// </summary>

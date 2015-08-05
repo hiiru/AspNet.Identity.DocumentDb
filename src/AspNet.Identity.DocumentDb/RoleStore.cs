@@ -10,24 +10,16 @@ using System.ComponentModel;
 
 namespace AspNet.Identity.DocumentDb
 {
-    public class RoleStore<TRole> : RoleStore<TRole, DocumentDbClient, string>
-          where TRole : IdentityRole<string>
+    public class RoleStore<TRole> : RoleStore<TRole, DocumentDbClient>
+          where TRole : IdentityRole
     {
         public RoleStore(DocumentDbClient context, IdentityErrorDescriber describer = null) : base(context, describer) { }
     }
-
-    public class RoleStore<TRole, TDocumentClient> : RoleStore<TRole, TDocumentClient, string>
-        where TRole : IdentityRole<string>
-        where TDocumentClient : DocumentDbClient
-    {
-        public RoleStore(TDocumentClient context, IdentityErrorDescriber describer = null) : base(context, describer) { }
-    }
-
-    public class RoleStore<TRole, TDocumentClient, TKey> :
+    
+    public class RoleStore<TRole, TDocumentClient> :
         IQueryableRoleStore<TRole>,
         IRoleClaimStore<TRole>
-        where TRole : IdentityRole<TKey>
-        where TKey : IEquatable<TKey>
+        where TRole : IdentityRole
         where TDocumentClient : DocumentDbClient
     {
         public RoleStore(TDocumentClient context, IdentityErrorDescriber describer = null)
@@ -65,25 +57,7 @@ namespace AspNet.Identity.DocumentDb
             _disposed = true;
         }
 
-        public virtual TKey ConvertIdFromString(string id)
-        {
-            if (id == null)
-            {
-                return default(TKey);
-            }
-            return (TKey)TypeDescriptor.GetConverter(typeof(TKey)).ConvertFromInvariantString(id);
-        }
-
-        public virtual string ConvertIdToString(TKey id)
-        {
-            if (id.Equals(default(TKey)))
-            {
-                return null;
-            }
-            return id.ToString();
-        }
-
-        public IQueryable<TRole> Roles { get { return DocumentDb.RoleQueryable<TRole, TKey>(); } }
+        public IQueryable<TRole> Roles { get { return DocumentDb.RoleQueryable<TRole>(); } }
 
         public async Task<IdentityResult> CreateAsync(TRole role, CancellationToken cancellationToken)
         {
@@ -93,7 +67,7 @@ namespace AspNet.Identity.DocumentDb
             {
                 throw new ArgumentNullException(nameof(role));
             }
-            await DocumentDb.RoleAdd<TRole, TKey>(role);
+            await DocumentDb.RoleAdd(role);
             return IdentityResult.Success;
         }
 
@@ -105,7 +79,7 @@ namespace AspNet.Identity.DocumentDb
             {
                 throw new ArgumentNullException(nameof(role));
             }
-            await DocumentDb.RoleUpdate<TRole, TKey>(role);
+            await DocumentDb.RoleUpdate(role);
             return IdentityResult.Success;
         }
 
@@ -117,20 +91,13 @@ namespace AspNet.Identity.DocumentDb
             {
                 throw new ArgumentNullException(nameof(role));
             }
-            await DocumentDb.RoleDelete<TRole, TKey>(role);
+            await DocumentDb.RoleDelete(role);
             return IdentityResult.Success;
         }
 
         public Task<string> GetRoleIdAsync(TRole role, CancellationToken cancellationToken)
         {
-
-            cancellationToken.ThrowIfCancellationRequested();
-            ThrowIfDisposed();
-            if (role == null)
-            {
-                throw new ArgumentNullException(nameof(role));
-            }
-            return Task.FromResult(ConvertIdToString(role.Id));
+            return GetRoleNameAsync(role, cancellationToken);
         }
 
         public Task<string> GetRoleNameAsync(TRole role, CancellationToken cancellationToken)
@@ -179,17 +146,9 @@ namespace AspNet.Identity.DocumentDb
             await UpdateAsync(role, cancellationToken);
         }
 
-        public async Task<TRole> FindByIdAsync(string id, CancellationToken cancellationToken)
+        public Task<TRole> FindByIdAsync(string id, CancellationToken cancellationToken)
         {
-            cancellationToken.ThrowIfCancellationRequested();
-            ThrowIfDisposed();
-            if (string.IsNullOrWhiteSpace(id))
-            {
-                throw new ArgumentNullException(nameof(id));
-            }
-            var roleId = ConvertIdFromString(id);
-            var roles = await DocumentDb.RoleSearch<TRole, TKey>(x => x.Id.Equals(roleId));
-            return roles.FirstOrDefault();
+            return FindByNameAsync(id, cancellationToken);
         }
 
         public async Task<TRole> FindByNameAsync(string normalizedRoleName, CancellationToken cancellationToken)
@@ -200,7 +159,7 @@ namespace AspNet.Identity.DocumentDb
             {
                 throw new ArgumentNullException(nameof(normalizedRoleName));
             }
-            var roles = await DocumentDb.RoleSearch<TRole, TKey>(x => x.NormalizedName == normalizedRoleName);
+            var roles = await DocumentDb.RoleSearch<TRole>(x => x.NormalizedName == normalizedRoleName);
             return roles.FirstOrDefault();
         }
         

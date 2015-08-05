@@ -73,30 +73,22 @@ namespace AspNet.Identity.DocumentDb
         #endregion
         #region IdentityRole
 
-        internal Task RoleAdd<TRole, TKey>(TRole user)
-            where TRole : IdentityRole<TKey>
-            where TKey : IEquatable<TKey>
+        internal Task RoleAdd<TRole>(TRole user) where TRole : IdentityRole
         {
             throw new NotImplementedException();
         }
 
-        internal Task RoleDelete<TRole, TKey>(TRole user)
-            where TRole : IdentityRole<TKey>
-            where TKey : IEquatable<TKey>
+        internal Task RoleDelete<TRole>(TRole user) where TRole : IdentityRole
         {
             throw new NotImplementedException();
         }
 
-        internal Task RoleUpdate<TRole, TKey>(TRole user)
-            where TRole : IdentityRole<TKey>
-            where TKey : IEquatable<TKey>
+        internal Task RoleUpdate<TRole>(TRole user) where TRole : IdentityRole
         {
             throw new NotImplementedException();
         }
 
-        public async Task<IEnumerable<TRole>> RoleSearch<TRole, TKey>(Expression<Func<TRole, bool>> predicate)
-            where TRole : IdentityRole<TKey>
-            where TKey : IEquatable<TKey>
+        public async Task<IEnumerable<TRole>> RoleSearch<TRole>(Expression<Func<TRole, bool>> predicate)  where TRole : IdentityRole
         {
             if (predicate == null)
                 throw new ArgumentNullException(nameof(predicate));
@@ -104,9 +96,7 @@ namespace AspNet.Identity.DocumentDb
             return await query.ExecuteNextAsync<TRole>();
         }
 
-        internal IQueryable<TRole> RoleQueryable<TRole, TKey>()
-            where TRole : IdentityRole<TKey>
-            where TKey : IEquatable<TKey>
+        internal IQueryable<TRole> RoleQueryable<TRole>() where TRole : IdentityRole
         {
             return _client.CreateDocumentQuery<TRole>(_collection.DocumentsLink);
         }

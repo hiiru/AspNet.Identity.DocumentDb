@@ -13,13 +13,12 @@ namespace AspNet.Identity.DocumentDb
             if (keyType != null)
             {
                 userStoreType = typeof(UserStore<,,,>).MakeGenericType(userType, roleType, contextType, keyType);
-                roleStoreType = typeof(RoleStore<,,>).MakeGenericType(roleType, contextType, keyType);
             }
             else
             {
                 userStoreType = typeof(UserStore<,,>).MakeGenericType(userType, roleType, contextType);
-                roleStoreType = typeof(RoleStore<,>).MakeGenericType(roleType, contextType);
             }
+            roleStoreType = typeof(RoleStore<,>).MakeGenericType(roleType, contextType);
 
             var services = new ServiceCollection();
             services.AddScoped(
