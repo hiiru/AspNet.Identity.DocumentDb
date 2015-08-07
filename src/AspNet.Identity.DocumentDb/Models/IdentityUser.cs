@@ -6,6 +6,8 @@ using System.Security.Claims;
 
 namespace AspNet.Identity.DocumentDb.Models
 {
+    public class IdentityUser : IdentityUser<string> { }
+
     public class IdentityUser<TKey>  where TKey : IEquatable<TKey> 
     {
         public IdentityUser()
@@ -42,7 +44,7 @@ namespace AspNet.Identity.DocumentDb.Models
         /// SecurityStamp, use the DocumentDb timestamp to be sure it's updated when any data is changed
         /// </summary>
         [JsonProperty(PropertyName = "_ts")]
-        public string SecurityStamp { get; }
+        public string SecurityStamp { get; set; }
 
         /// <summary>
         ///     PhoneNumber for the user

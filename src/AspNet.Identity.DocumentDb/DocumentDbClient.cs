@@ -23,15 +23,15 @@ namespace AspNet.Identity.DocumentDb
                 throw new ArgumentNullException(nameof(config));
             var url = config["DocumentDb:EndpointUrl"];
             var key = config["DocumentDb:AuthorizationKey"];
-            var db = config["DocumentDb:Database"];
-            var collection = config["DocumentDb:Collection"];
-            if (string.IsNullOrWhiteSpace(url) || string.IsNullOrWhiteSpace(key) || string.IsNullOrWhiteSpace(db) || string.IsNullOrWhiteSpace(collection))
+            if (string.IsNullOrWhiteSpace(url) || string.IsNullOrWhiteSpace(key))
                 throw new ArgumentException(nameof(config));
+            var db = config["DocumentDb:Database"] ?? "AspNetIdentity";
+            var collection = config["DocumentDb:Collection"] ?? "AspNetIdentity";
             _client = new DocumentClient(new Uri(url), key, new ConnectionPolicy { ConnectionMode = ConnectionMode.Direct, ConnectionProtocol = Protocol.Tcp });
             EnsureDbSetup(db, collection);
         }
 
-        public DocumentDbClient(Uri endpoint, string key, string db = "AspNetIdentity", string collection = "AspNetIdentity")
+        public DocumentDbClient(Uri endpoint, string key, string db, string collection)
         {
             if (endpoint == null)
                 throw new ArgumentNullException(nameof(endpoint));
@@ -55,24 +55,29 @@ namespace AspNet.Identity.DocumentDb
         public string RolePrefix { get; set; } = "role_";
 
         #region IdentityUser
-        
-        private string GetUserKey<TKey>(TKey userId)
-        {
-            if (userId.Equals(default(TKey)))
-                return null;
-            return string.Concat(UserPrefix, userId);
-        }
 
         internal async Task UserAdd<TUser, TKey>(TUser user)
             where TUser : IdentityUser<TKey>
-            where TKey : IEquatable<TKey>
+            where TKey : class, IEquatable<TKey>
         {
             if (user == null)
                 throw new ArgumentNullException(nameof(user));
             if (user.DocSelfLink != null || user.DocId != null)
                 throw new ArgumentException(nameof(user));
-            user.DocId = GetUserKey(user.DocId);
-            await _client.CreateDocumentAsync(_collection.DocumentsLink, user);
+            if (user.Id == null || user.Id.Equals(default(TKey)))
+            {
+                if (typeof(TKey) == typeof(string))
+                    user.Id = Guid.NewGuid().ToString() as TKey;
+                else if (typeof(TKey) == typeof(Guid))
+                    user.Id = Guid.NewGuid() as TKey;
+                else
+                    throw new ArgumentException("No UserId is set!", nameof(user));
+            }
+            user.DocId = string.Concat(UserPrefix, user.Id);
+            var doc = await _client.CreateDocumentAsync(_collection.DocumentsLink, user);
+            user.DocSelfLink = doc.Resource.SelfLink;
+            user.SecurityStamp = doc.Resource.Timestamp.Ticks.ToString();
+            return;
         }
 
         internal async Task UserDelete<TUser, TKey>(TUser user)

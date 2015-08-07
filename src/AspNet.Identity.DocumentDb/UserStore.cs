@@ -49,7 +49,7 @@ namespace AspNet.Identity.DocumentDb
         where TUser : IdentityUser<TKey>
         where TRole : IdentityRole
         where TDocumentClient : DocumentDbClient
-        where TKey : IEquatable<TKey>
+        where TKey : class,IEquatable<TKey>
     {
         public UserStore(TDocumentClient context, IdentityErrorDescriber describer = null)
         {
@@ -97,7 +97,7 @@ namespace AspNet.Identity.DocumentDb
 
         public virtual string ConvertIdToString(TKey id)
         {
-            if (id.Equals(default(TKey)))
+            if (id==null || id.Equals(default(TKey)))
             {
                 return null;
             }
@@ -129,6 +129,11 @@ namespace AspNet.Identity.DocumentDb
             if (user == null)
             {
                 throw new ArgumentNullException(nameof(user));
+            }
+            var users = await DocumentDb.UserSearch<TUser, TKey>(x => x.UserName == user.UserName);
+            if (users.Any())
+            {
+                return IdentityResult.Failed(ErrorDescriber.DuplicateUserName(user.UserName));
             }
             await DocumentDb.UserAdd<TUser, TKey>(user);
             return IdentityResult.Success;
@@ -277,6 +282,9 @@ namespace AspNet.Identity.DocumentDb
             {
                 throw new ArgumentNullException(nameof(user));
             }
+            //tmp workaround for testing
+            if (user.DocId == null)
+                return IdentityResult.Failed();
             await DocumentDb.UserUpdate<TUser, TKey>(user);
             return IdentityResult.Success;
         }
