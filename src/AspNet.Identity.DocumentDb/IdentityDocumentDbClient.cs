@@ -11,13 +11,13 @@ using System.Threading.Tasks;
 
 namespace AspNet.Identity.DocumentDb
 {
-    public class DocumentDbClient
+    public class IdentityDocumentDbClient : IIdentityDocumentDbClient
     {
         private readonly DocumentClient _client;
         private Database _db;
         private DocumentCollection _collection;
 
-        public DocumentDbClient(IConfiguration config)
+        public IdentityDocumentDbClient(IConfiguration config)
         {
             if (config == null)
                 throw new ArgumentNullException(nameof(config));
@@ -31,7 +31,7 @@ namespace AspNet.Identity.DocumentDb
             EnsureDbSetup(db, collection);
         }
 
-        public DocumentDbClient(Uri endpoint, string key, string db, string collection)
+        public IdentityDocumentDbClient(Uri endpoint, string key, string db, string collection)
         {
             if (endpoint == null)
                 throw new ArgumentNullException(nameof(endpoint));
@@ -56,7 +56,7 @@ namespace AspNet.Identity.DocumentDb
 
         #region IdentityUser
 
-        internal async Task UserAdd<TUser, TKey>(TUser user)
+        public async Task UserAdd<TUser, TKey>(TUser user)
             where TUser : IdentityUser<TKey>
             where TKey : class, IEquatable<TKey>
         {
@@ -80,7 +80,7 @@ namespace AspNet.Identity.DocumentDb
             return;
         }
 
-        internal async Task UserDelete<TUser, TKey>(TUser user)
+        public async Task UserDelete<TUser, TKey>(TUser user)
             where TUser : IdentityUser<TKey>
             where TKey : IEquatable<TKey>
         {
@@ -91,7 +91,7 @@ namespace AspNet.Identity.DocumentDb
             await _client.DeleteDocumentAsync(user.DocSelfLink);
         }
 
-        internal async Task UserUpdate<TUser, TKey>(TUser user)
+        public async Task UserUpdate<TUser, TKey>(TUser user)
             where TUser : IdentityUser<TKey>
             where TKey : IEquatable<TKey>
         {
@@ -112,7 +112,7 @@ namespace AspNet.Identity.DocumentDb
             return await query.ExecuteNextAsync<TUser>();
         }
 
-        internal IQueryable<TUser> UserQueryable<TUser, TKey>()
+        public IQueryable<TUser> UserQueryable<TUser, TKey>()
             where TUser : IdentityUser<TKey>
             where TKey : IEquatable<TKey>
         {
@@ -123,7 +123,7 @@ namespace AspNet.Identity.DocumentDb
 
         #region IdentityRole
 
-        internal async Task RoleAdd<TRole>(TRole role) where TRole : IdentityRole
+        public async Task RoleAdd<TRole>(TRole role) where TRole : IdentityRole
         {
             if (role == null)
                 throw new ArgumentNullException(nameof(role));
@@ -133,7 +133,7 @@ namespace AspNet.Identity.DocumentDb
             await _client.CreateDocumentAsync(_collection.DocumentsLink, role);
         }
 
-        internal async Task RoleDelete<TRole>(TRole role) where TRole : IdentityRole
+        public async Task RoleDelete<TRole>(TRole role) where TRole : IdentityRole
         {
             if (role == null)
                 throw new ArgumentNullException(nameof(role));
@@ -142,7 +142,7 @@ namespace AspNet.Identity.DocumentDb
             await _client.DeleteDocumentAsync(role.DocSelfLink);
         }
 
-        internal async Task RoleUpdate<TRole>(TRole role) where TRole : IdentityRole
+        public async Task RoleUpdate<TRole>(TRole role) where TRole : IdentityRole
         {
             if (role == null)
                 throw new ArgumentNullException(nameof(role));
@@ -159,7 +159,7 @@ namespace AspNet.Identity.DocumentDb
             return await query.ExecuteNextAsync<TRole>();
         }
 
-        internal IQueryable<TRole> RoleQueryable<TRole>() where TRole : IdentityRole
+        public IQueryable<TRole> RoleQueryable<TRole>() where TRole : IdentityRole
         {
             return _client.CreateDocumentQuery<TRole>(_collection.DocumentsLink);
         }

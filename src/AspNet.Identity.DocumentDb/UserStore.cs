@@ -12,30 +12,29 @@ namespace AspNet.Identity.DocumentDb
 {
     public class UserStore : UserStore<IdentityUser<string>>
     {
-        public UserStore(DocumentDbClient context, IdentityErrorDescriber describer = null) : base(context, describer)
+        public UserStore(IIdentityDocumentDbClient context, IdentityErrorDescriber describer = null) : base(context, describer)
         {
         }
     }
 
-    public class UserStore<TUser> : UserStore<TUser, IdentityRole, DocumentDbClient>
+    public class UserStore<TUser> : UserStore<TUser, IdentityRole>
         where TUser : IdentityUser<string>, new()
     {
-        public UserStore(DocumentDbClient context, IdentityErrorDescriber describer = null) : base(context, describer)
+        public UserStore(IIdentityDocumentDbClient context, IdentityErrorDescriber describer = null) : base(context, describer)
         {
         }
     }
 
-    public class UserStore<TUser, TRole, TDocumentClient> : UserStore<TUser, TRole, TDocumentClient, string>
+    public class UserStore<TUser, TRole> : UserStore<TUser, TRole, string>
         where TUser : IdentityUser<string>, new()
         where TRole : IdentityRole, new()
-        where TDocumentClient : DocumentDbClient
     {
-        public UserStore(TDocumentClient context, IdentityErrorDescriber describer = null) : base(context, describer)
+        public UserStore(IIdentityDocumentDbClient context, IdentityErrorDescriber describer = null) : base(context, describer)
         {
         }
     }
 
-    public class UserStore<TUser, TRole, TDocumentClient, TKey> :
+    public class UserStore<TUser, TRole, TKey> :
         IUserLoginStore<TUser>,
         IUserRoleStore<TUser>,
         IUserClaimStore<TUser>,
@@ -48,10 +47,9 @@ namespace AspNet.Identity.DocumentDb
         IUserTwoFactorStore<TUser>
         where TUser : IdentityUser<TKey>
         where TRole : IdentityRole
-        where TDocumentClient : DocumentDbClient
         where TKey : class,IEquatable<TKey>
     {
-        public UserStore(TDocumentClient context, IdentityErrorDescriber describer = null)
+        public UserStore(IIdentityDocumentDbClient context, IdentityErrorDescriber describer = null)
         {
             if (context == null)
             {
@@ -61,7 +59,7 @@ namespace AspNet.Identity.DocumentDb
             ErrorDescriber = describer ?? new IdentityErrorDescriber();
         }
 
-        public TDocumentClient DocumentDb { get; private set; }
+        public IIdentityDocumentDbClient DocumentDb { get; private set; }
 
         /// <summary>
         ///     Used to generate public API error messages

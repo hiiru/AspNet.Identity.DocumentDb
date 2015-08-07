@@ -6,19 +6,19 @@ namespace AspNet.Identity.DocumentDb
 {
     public class IdentityDocumentDbServices
     {
-        public static IServiceCollection GetDefaultServices(Type userType, Type roleType, Type contextType, Type keyType = null)
+        public static IServiceCollection GetDefaultServices(Type userType, Type roleType, Type keyType = null)
         {
             Type userStoreType;
             Type roleStoreType;
             if (keyType != null)
             {
-                userStoreType = typeof(UserStore<,,,>).MakeGenericType(userType, roleType, contextType, keyType);
+                userStoreType = typeof(UserStore<,,>).MakeGenericType(userType, roleType, keyType);
             }
             else
             {
-                userStoreType = typeof(UserStore<,,>).MakeGenericType(userType, roleType, contextType);
+                userStoreType = typeof(UserStore<,>).MakeGenericType(userType, roleType);
             }
-            roleStoreType = typeof(RoleStore<,>).MakeGenericType(roleType, contextType);
+            roleStoreType = typeof(RoleStore<>).MakeGenericType(roleType);
 
             var services = new ServiceCollection();
             services.AddScoped(

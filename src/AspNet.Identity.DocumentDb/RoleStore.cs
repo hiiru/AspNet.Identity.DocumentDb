@@ -6,23 +6,15 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Threading;
 using System.Security.Claims;
-using System.ComponentModel;
 
 namespace AspNet.Identity.DocumentDb
-{
-    public class RoleStore<TRole> : RoleStore<TRole, DocumentDbClient>
-          where TRole : IdentityRole
-    {
-        public RoleStore(DocumentDbClient context, IdentityErrorDescriber describer = null) : base(context, describer) { }
-    }
-    
-    public class RoleStore<TRole, TDocumentClient> :
+{    
+    public class RoleStore<TRole> :
         IQueryableRoleStore<TRole>,
         IRoleClaimStore<TRole>
         where TRole : IdentityRole
-        where TDocumentClient : DocumentDbClient
     {
-        public RoleStore(TDocumentClient context, IdentityErrorDescriber describer = null)
+        public RoleStore(IIdentityDocumentDbClient context, IdentityErrorDescriber describer = null)
         {
             if (context == null)
             {
@@ -32,7 +24,7 @@ namespace AspNet.Identity.DocumentDb
             ErrorDescriber = describer ?? new IdentityErrorDescriber();
         }
 
-        public TDocumentClient DocumentDb { get; private set; }
+        public IIdentityDocumentDbClient DocumentDb { get; private set; }
 
         /// <summary>
         ///     Used to generate public API error messages
