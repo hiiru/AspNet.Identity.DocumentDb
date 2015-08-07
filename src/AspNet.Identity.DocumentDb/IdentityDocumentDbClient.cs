@@ -2,7 +2,6 @@
 using Microsoft.Azure.Documents;
 using Microsoft.Azure.Documents.Client;
 using Microsoft.Azure.Documents.Linq;
-using Microsoft.Framework.Configuration;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,28 +16,14 @@ namespace AspNet.Identity.DocumentDb
         private Database _db;
         private DocumentCollection _collection;
 
-        public IdentityDocumentDbClient(IConfiguration config)
-        {
-            if (config == null)
-                throw new ArgumentNullException(nameof(config));
-            var url = config["DocumentDb:EndpointUrl"];
-            var key = config["DocumentDb:AuthorizationKey"];
-            if (string.IsNullOrWhiteSpace(url) || string.IsNullOrWhiteSpace(key))
-                throw new ArgumentException(nameof(config));
-            var db = config["DocumentDb:Database"] ?? "AspNetIdentity";
-            var collection = config["DocumentDb:Collection"] ?? "AspNetIdentity";
-            _client = new DocumentClient(new Uri(url), key, new ConnectionPolicy { ConnectionMode = ConnectionMode.Direct, ConnectionProtocol = Protocol.Tcp });
-            EnsureDbSetup(db, collection);
-        }
-
-        public IdentityDocumentDbClient(Uri endpoint, string key, string db, string collection)
+        public IdentityDocumentDbClient(Uri endpoint, string key, string db = null, string collection = null, ConnectionPolicy policy = null)
         {
             if (endpoint == null)
                 throw new ArgumentNullException(nameof(endpoint));
             if (key == null)
                 throw new ArgumentNullException(nameof(endpoint));
-            _client = new DocumentClient(endpoint, key, new ConnectionPolicy { ConnectionMode = ConnectionMode.Direct, ConnectionProtocol = Protocol.Tcp });
-            EnsureDbSetup(db, collection);
+            _client = new DocumentClient(endpoint, key, policy ?? new ConnectionPolicy { ConnectionMode = ConnectionMode.Direct, ConnectionProtocol = Protocol.Tcp });
+            EnsureDbSetup(db ?? "AspNetIdentity", collection ?? "AspNetIdentity");
         }
 
         private async void EnsureDbSetup(string dbId, string collectionId)
