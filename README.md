@@ -2,7 +2,7 @@
 
 This will be a simple AspNet Identity 3 DocumentDb provider.
 
-**Note: this code is currently not working and still a untested work in progress!**
+**Note: this code currently has no unit tests, use at your own risk!**
 
 
 This Code has some limitations:
